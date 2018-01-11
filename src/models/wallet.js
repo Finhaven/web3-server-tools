@@ -1,3 +1,10 @@
+/**
+ * note that this isn't intended to be used in production.  it is an in memory store to
+ * save wallets (address + privateKeyP
+ *
+ * @type {{}}
+ */
+
 const records = {};
 module.exports = {
     deleteById: (id) => {
