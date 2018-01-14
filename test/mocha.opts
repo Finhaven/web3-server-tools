@@ -1,4 +1,3 @@
 --recursive
---growl
 --require ./test/setup
 --timeout 10000
