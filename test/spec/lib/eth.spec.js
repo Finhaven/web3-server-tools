@@ -111,12 +111,12 @@ describe('Eth', () => {
       console.log('getting contract at ',simpleContractAddress);
       let simpleContract = SimpleContract.at(simpleContractAddress);
       assert.isDefined(simpleContract);
-      assert.equal(simpleContract.address,simpleContractAddress);
+      assert.equal(simpleContract.address, simpleContractAddress);
       let valueBN = await simpleContract.value();
       //convert from bignum to string
       let value = valueBN.toString();
       console.log('simpleContract.value()',value);
-      // assert.equal(value,String(initialValue));
+      assert.equal(value, String(initialValue));
     });
 
     it('should increment value from simple contract', async function(){
