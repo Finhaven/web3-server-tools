@@ -99,7 +99,7 @@ describe('Eth', () => {
       // console.log('deployContract params', options.params)
       // console.log('deployContract txParams', options.txParams)
       let simpleContract = await Eth.deployContract('SimpleContract', options);
-      console.log('contract deployed at ',simpleContract.address);
+      console.log('contract deployed at ', simpleContract.options.address);
       assert.isDefined(simpleContract);
       assert.isDefined(simpleContract.contract);
       simpleContractAddress = simpleContract.address;
@@ -125,7 +125,7 @@ describe('Eth', () => {
       console.log('getting contract at ',simpleContractAddress);
       let simpleContract = SimpleContract.at(simpleContractAddress);
       assert.isDefined(simpleContract);
-      assert.equal(simpleContract.address,simpleContractAddress);
+      assert.equal(simpleContract.address, simpleContractAddress);
       let result = await simpleContract.add(incrementValue);
 
       // is there something to test here - eg, transaction result?  maybe add an event to the simplecontract (increment event)
@@ -165,7 +165,8 @@ describe('Eth', () => {
     });
 
     //FIXME: nit clear why this is currently failing
-    it.skip('send eth to contract', () => {
+    it('send eth to contract', async () => {
+      assert.isDefined(deal);
       const contractAddress = deal.address;
       return Wallet
         .findOrCreate(testAccount.address, testAccount)
