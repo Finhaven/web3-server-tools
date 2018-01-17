@@ -137,7 +137,8 @@ describe('Eth', () => {
     });
 
   });
-  describe.skip('deal contracts', () => {
+
+  describe('deal contracts', () => {
     it('should deploy contract', async function () {
       this.timeout(20000);
       const now = Date.now();
@@ -158,7 +159,7 @@ describe('Eth', () => {
       deal = await Eth.deployContract('Deal', options);
       // console.log('got ',deal);
       assert.isDefined(deal);
-      assert.isDefined(deal.contract);
+      assert.isDefined(deal.options.address);
       return deal;
     });
 
@@ -173,12 +174,13 @@ describe('Eth', () => {
           to: contractAddress,
           value: web3.utils.toWei('1', 'ether'),
         }))
-        .then((tx) => {
+        .then(async (tx) => {
           console.log('eth transfer ', tx);
-          const tokenContract = Eth.loadContract('DealToken');
-          console.log('deal token address', deal.token());
-          tokenContract.at(deal.token)
-            .balanceOf(testAccount.address);
+          dealTokenAddress = await deal.methods.token().call();
+          console.log('deal token address', dealTokenAddress);
+          const tokenContract = Eth.loadContract('DealToken', dealTokenAddress);
+          return await tokenContract.methods
+            .balanceOf(testAccount.address).call();
         })
         .then((tokenBalance) => {
           console.log('token balance is ', tokenBalance);
