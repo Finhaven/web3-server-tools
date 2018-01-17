@@ -144,10 +144,10 @@ const Eth = {
 
     return contractData;
   },
-  loadContract(name) {
+  loadContract(name, address) {
     // eslint-disable-next-line
     const contractData = require(`../../truffle/build/contracts/${name}.json`);
-    const contract = new web3.eth.Contract(contractData.abi, {data: contractData.bytecode});
+    const contract = new web3.eth.Contract(contractData.abi, address, {data: contractData.bytecode});
     // Contract.setProvider(provider);
     // patchTruffleContract(Contract);
     return contract;

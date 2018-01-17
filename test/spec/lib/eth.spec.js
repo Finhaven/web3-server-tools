@@ -91,11 +91,12 @@ describe('Eth', () => {
     const initialValue = 100;
     const incrementValue = 13;
 
+    const options = {
+      params: [initialValue],
+      txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
+    };
+
     it('should deploy contract', async function () {
-      const options = {
-        params: [initialValue],
-        txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
-      };
       // console.log('deployContract params', options.params)
       // console.log('deployContract txParams', options.txParams)
 
@@ -107,13 +108,11 @@ describe('Eth', () => {
     });
 
     it('should get value from simple contract', async function(){
-      const SimpleContract = Eth.loadContract('SimpleContract');
-      assert.isDefined(SimpleContract);
-      console.log('getting contract at ',simpleContractAddress);
-      let simpleContract = SimpleContract.at(simpleContractAddress);
+      console.log('getting contract at ', simpleContractAddress);
+      const simpleContract = Eth.loadContract('SimpleContract', simpleContractAddress);
       assert.isDefined(simpleContract);
-      assert.equal(simpleContract.address, simpleContractAddress);
-      let valueBN = await simpleContract.value();
+      assert.equal(simpleContract.options.address, simpleContractAddress);
+      let valueBN = await simpleContract.methods.value().call();
       //convert from bignum to string
       let value = valueBN.toString();
       console.log('simpleContract.value()',value);
@@ -121,22 +120,20 @@ describe('Eth', () => {
     });
 
     it('should increment value from simple contract', async function(){
-      const SimpleContract = Eth.loadContract('SimpleContract');
-      assert.isDefined(SimpleContract);
-      console.log('getting contract at ',simpleContractAddress);
-      let simpleContract = SimpleContract.at(simpleContractAddress);
+      console.log('getting contract at ', simpleContractAddress);
+      const simpleContract = Eth.loadContract('SimpleContract', simpleContractAddress);
       assert.isDefined(simpleContract);
-      assert.equal(simpleContract.address, simpleContractAddress);
-      let result = await simpleContract.add(incrementValue);
+      assert.equal(simpleContract.options.address, simpleContractAddress);
+
+      let result = await simpleContract.methods.add(incrementValue).send(options.txParams);
 
       // is there something to test here - eg, transaction result?  maybe add an event to the simplecontract (increment event)
 
-      let newValueBN = await simpleContract.value();
+      let newValueBN = await simpleContract.methods.value().call();
       //new value should be bignum
-      console.log();
       let newValue = newValueBN.toString();
-      console.log('simpleContract.value()',newValue);
-      assert.equal(newValue,String(initialValue+incrementValue));
+      console.log('simpleContract.value()', newValue);
+      assert.equal(newValue, String(initialValue+incrementValue));
     });
 
   });
