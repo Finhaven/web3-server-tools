@@ -139,21 +139,23 @@ describe('Eth', () => {
   });
 
   describe('deal contracts', () => {
+    const now = Date.now();
+    const oneMonth = 1000 * 60 * 60 * 24 * 30; // 30 days anyway
+    const start = Number((now / 1000).toFixed());
+    const end = Number((((2 * oneMonth) + now) / 1000).toFixed());
+    const destinationAddress = accounts[5];
+    const rate = new BigNumber(1000);
+
+    const options = {
+      params: [start, end, rate, destinationAddress],
+      txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
+    };
+
     it('should deploy contract', async function () {
       this.timeout(20000);
-      const now = Date.now();
-      const oneMonth = 1000 * 60 * 60 * 24 * 30; // 30 days anyway
-      const start = Number((now / 1000).toFixed());
-      const end = Number((((2 * oneMonth) + now) / 1000).toFixed());
-      const destinationAddress = accounts[5];
-      const rate = new BigNumber(1000);
 
       console.log(`start ${new Date(start * 1000)} to end ${new Date(end * 1000)}`);
 
-      const options = {
-        params: [start, end, rate, destinationAddress],
-        txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
-      };
       // console.log('deployContract params', options.params)
       // console.log('deployContract txParams', options.txParams)
       deal = await Eth.deployContract('Deal', options);
@@ -165,6 +167,7 @@ describe('Eth', () => {
 
     //FIXME: nit clear why this is currently failing
     it('send eth to contract', async () => {
+      deal = await Eth.loadContract('Deal', deal.options.address, options);
       assert.isDefined(deal);
       const contractAddress = deal.address;
       return Wallet

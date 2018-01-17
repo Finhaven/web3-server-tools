@@ -11,6 +11,8 @@ const providerUrl = process.env.HTTP_ETH_RPC || 'http://127.0.0.1:8545';
 const etherscanNetwork = process.env.ETHERSCAN_NETWORK || 'rinkeby.etherscan.io';
 logger.info('web3 provider ', providerUrl);
 const web3 = new Web3(providerUrl);
+
+
 const provider = web3.currentProvider;
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
 
@@ -148,8 +150,8 @@ const Eth = {
     // eslint-disable-next-line
     const contractData = require(`../../truffle/build/contracts/${name}.json`);
     const contract = new web3.eth.Contract(contractData.abi, address, {data: contractData.bytecode});
-    // Contract.setProvider(provider);
     // patchTruffleContract(Contract);
+    contract.setProvider(provider);
     return contract;
   },
   deployContract(name, options = {}) {
