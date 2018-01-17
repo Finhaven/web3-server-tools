@@ -98,11 +98,12 @@ describe('Eth', () => {
       };
       // console.log('deployContract params', options.params)
       // console.log('deployContract txParams', options.txParams)
+
       let simpleContract = await Eth.deployContract('SimpleContract', options);
       console.log('contract deployed at ', simpleContract.options.address);
       assert.isDefined(simpleContract);
-      assert.isDefined(simpleContract.contract);
-      simpleContractAddress = simpleContract.address;
+      assert.isDefined(simpleContract.options.address);
+      simpleContractAddress = simpleContract.options.address;
     });
 
     it('should get value from simple contract', async function(){

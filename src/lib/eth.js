@@ -147,29 +147,14 @@ const Eth = {
   loadContract(name) {
     // eslint-disable-next-line
     const contractData = require(`../../truffle/build/contracts/${name}.json`);
-    const contract = new web3.eth.Contract(contractData.abi);
+    const contract = new web3.eth.Contract(contractData.abi, {data: contractData.bytecode});
     // Contract.setProvider(provider);
     // patchTruffleContract(Contract);
     return contract;
   },
   deployContract(name, options = {}) {
-    /*
-      the contract api docs: https://github.com/trufflesuite/truffle-contract#api
-     */
     const contract = Eth.loadContract(name);
-    // * TRUFFLE DOC FAILURE, need '...' on the params.  ugh, my head!   
-    // return Contract.new(...options.params, options.txParams);
-    console.log(contract);
-    return contract.deploy().send();
-    // return new Promise((resolve, reject) => {
-    //   return contract.deploy().send()
-    //     .on('error', function(error){
-    //       return reject(error);
-    //     })
-    //     .on('receipt', function(receipt){
-    //        return resolve(contract);
-    //     });
-    //   });
+    return contract.deploy({arguments: options.params}).send(options.txParams);
   },
   findTransactions(address) {
     logger.debug('findTransactions(address)', address);
