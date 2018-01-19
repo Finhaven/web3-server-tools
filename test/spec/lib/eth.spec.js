@@ -129,7 +129,7 @@ describe('Eth', () => {
   });
 
   describe('ETH actions', () => {
-    it('send eth to contract', async () => {
+    it('send eth to address', async () => {
       const receiver = web3.eth.accounts.create();
       return Wallet
         .findOrCreate(testAccount.address, testAccount)
