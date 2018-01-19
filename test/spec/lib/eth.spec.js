@@ -126,28 +126,39 @@ describe('Eth', () => {
       assert.isDefined(deal.options.address);
       return deal;
     });
+  });
 
+  describe('ETH actions', () => {
     it('send eth to contract', async () => {
-      deal = await Eth.loadContract('Deal', deal.options.address, options);
-      assert.isDefined(deal);
-      const contractAddress = deal.options.address;
-      console.log('contractAddress',contractAddress);
+      const receiver = web3.eth.accounts.create();
       return Wallet
         .findOrCreate(testAccount.address, testAccount)
+        .then(() => {
+          return Eth.getBalance(testAccount.address);
+        })
+        .then((balance) => {
+          console.log('Sender: ', testAccount.address);
+          console.log('Old balance: ', balance.toString());
+        })
         .then(() => Eth.transfer({
           from: testAccount.address,
-          to: contractAddress,
-          value: web3.utils.toWei('1', 'ether'),
+          to: receiver.address,
+          amount: '2'
         }))
         .then((tx) => {
           console.log('eth transfer ', tx);
+          return Eth.getBalance(testAccount.address);
         })
-        .then(async () => {
-          const balance = await Eth.getBalance(contractAddress);
-          console.log('balance was',balance);
-          assert.equal(balance.toString(),web3.utils.toWei('1', 'ether'))
+        .then((balance) => {
+          console.log('New balance ', balance.toString());
+        })
+        .then((tx) => {
+          return Eth.getBalance(receiver.address);
+        })
+        .then((balance) => {
+          console.log('New balance ', balance.toString());
+          assert.equal(balance.toString(), '2')
         });
-
     });
   });
 });

@@ -16,13 +16,6 @@ const web3 = new Web3(providerUrl);
 const provider = web3.currentProvider;
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
 
-/* FIX for this yuck: https://github.com/trufflesuite/truffle-contract/issues/57 */
-function patchTruffleContract(Contract) {
-  // eslint-disable-next-line no-param-reassign
-  Contract.currentProvider.sendAsync = (...rest) =>
-    Contract.currentProvider.send(...rest);
-}
-
 const Eth = {
   getAddressUrl(address) {
     return `https://${etherscanNetwork}/address/${address}`;
@@ -150,7 +143,6 @@ const Eth = {
     // eslint-disable-next-line
     const contractData = require(`../../truffle/build/contracts/${name}.json`);
     const contract = new web3.eth.Contract(contractData.abi, address, {data: contractData.bytecode});
-    // patchTruffleContract(Contract);
     contract.setProvider(provider);
     return contract;
   },
@@ -229,7 +221,6 @@ const Eth = {
             tx.sign(key);
 
             const feeCost = tx.getUpfrontCost();
-            // tx.gas = feeCost;
             // tx.gas = feeCost;
             logger.debug(`Total Amount of wei needed:${feeCost.toString()}`);
             logger.debug(`Total Amount of eth needed:${web3.utils.fromWei(feeCost, 'ether').toString()}`);
