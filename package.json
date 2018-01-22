@@ -5,7 +5,7 @@
   "main": "lib/eth.js",
   "scripts": {
     "postinstall": "npm run truffle:compile",
-    "pretest": "./ensure-ganache-running.sh",
+    "pretest": "./ensure-ganache-running.sh || (npm run start:testrpc &)",
     "test": "mocha",
     "test:lint": "eslint -c .eslintrc . --color=true --quiet",
     "test:lint:fix": "eslint -c .eslintrc . --color=true --quiet --fix",
