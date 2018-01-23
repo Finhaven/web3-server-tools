@@ -49,7 +49,7 @@ describe('Eth', () => {
   });
 
   describe('simple contract', () => {
-    let simpleContractAddress;
+    let simpleContract, simpleContractAddress;
     const initialValue = 100;
     const incrementValue = 13;
 
@@ -59,10 +59,7 @@ describe('Eth', () => {
     };
 
     it('should deploy contract', async function () {
-      // console.log('deployContract params', options.params)
-      // console.log('deployContract txParams', options.txParams)
-
-      let simpleContract = await Eth.deployContract('SimpleContract', options);
+      simpleContract = await Eth.deployContract('SimpleContract', options);
       console.log('contract deployed at ', simpleContract.options.address);
       assert.isDefined(simpleContract);
       assert.isDefined(simpleContract.options.address);
@@ -70,9 +67,6 @@ describe('Eth', () => {
     });
 
     it('should get value from simple contract', async function () {
-      console.log('getting contract at ', simpleContractAddress);
-      const simpleContract = Eth.loadContract('SimpleContract', simpleContractAddress);
-      assert.isDefined(simpleContract);
       assert.equal(simpleContract.options.address, simpleContractAddress);
       let valueBN = await simpleContract.methods.value().call();
       //convert from bignum to string
@@ -82,8 +76,6 @@ describe('Eth', () => {
     });
 
     it('should increment value from simple contract', async function () {
-      console.log('getting contract at ', simpleContractAddress);
-      const simpleContract = Eth.loadContract('SimpleContract', simpleContractAddress);
       assert.isDefined(simpleContract);
       assert.equal(simpleContract.options.address, simpleContractAddress);
 
