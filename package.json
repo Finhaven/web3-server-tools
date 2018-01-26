@@ -2,7 +2,11 @@
   "name": "web3-server-tools",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/eth.js",
+  "main": "src/lib/eth.js",
+  "files": [
+    "src",
+    "truffle"
+  ],
   "scripts": {
     "postinstall": "npm run truffle:compile",
     "pretest": "./ensure-ganache-running.sh || (npm run start:testrpc &)",
