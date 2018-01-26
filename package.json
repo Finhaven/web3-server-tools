@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/lib/eth.js",
+  "files": [
+    "src",
+    "truffle"
+  ],
   "scripts": {
     "postinstall": "npm run truffle:compile",
     "pretest": "./ensure-ganache-running.sh || (npm run start:testrpc &)",
