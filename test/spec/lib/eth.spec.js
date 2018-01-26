@@ -109,7 +109,8 @@ describe('Eth', () => {
       txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
     };
 
-    it('should deploy contract', function () {
+    it('should deploy contract', async () => {
+      console.log('deal deployment');
       return Eth.deployContract('Deal', options)
         .then(deal => {
           assert.isDefined(deal);

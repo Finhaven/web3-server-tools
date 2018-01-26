@@ -148,7 +148,6 @@ const Eth = {
   },
   deployContract(name, options = {}) {
     const contractBody = Eth.loadContract(name);
-    console.log('txparams.to: ', options.txParams.to);
     options.txParams.to = undefined;
     return contractBody.deploy({arguments: options.params}).send(options.txParams)
       .then(contractInstance => {
