@@ -30,7 +30,7 @@ describe('DealToken', () => {
 
   function mintTokens(account, amountToMint) {
     return dealToken.methods.mint(account, amountToMint).send(options.txParams)
-      .then(() => dealToken.methods.approve(account, amountToMint).call(options.txParams));
+      .then(() => dealToken.methods.approve(account, amountToMint).send(options.txParams));
   }
 
 
@@ -75,9 +75,9 @@ describe('DealToken', () => {
   beforeEach(() => {
     console.log('redeploying token');
     return Eth.deployContract('DealToken', options)
-    .then(result => {
-      dealToken = result;
-    })
+      .then(result => {
+        dealToken = result;
+      })
   });
 
   it('should get instance of lp token', () => {
@@ -86,45 +86,47 @@ describe('DealToken', () => {
 
   it('should get zero balance of lp token', () => checkBalance(userAccount, 0));
 
-  // it('should authorize ', () => {
-  //     return checkAuthorized(userAccount, false)
-  //       .then(() => authorize(userAccount))
-  //       .then(() => checkAuthorized(userAccount, true));
-  // });
+  it('should authorize ', () => {
+    return checkAuthorized(userAccount, false)
+      .then(() => authorize(userAccount))
+      .then(() => checkAuthorized(userAccount, true));
+  });
 
-  // it('should mint tokens ', () => {
-  //   return authorize(userAccount)
-  //     .then(() => checkBalance(userAccount, 0))
-  //     .then(() => mintTokens(userAccount, 25))
-  //     .then(() => checkBalance(userAccount, 25));
-  // });
+  it('should mint tokens ', () => {
+    return authorize(userAccount)
+      .then(() => checkBalance(userAccount, 0))
+      .then(() => mintTokens(userAccount, 25))
+      .then(() => checkBalance(userAccount, 25));
+  });
 
-  // it('should transfer tokens to authorized address ', () => {
-  //     const shouldFail = false;
-  //     return checkBalance(ownerAccount, 0)
-  //     .then(() => authorize(ownerAccount))
-  //     .then(() => authorize(userAccount))
-  //     .then(() => mintTokens(ownerAccount, 100))
-  //     .then(() => checkBalance(ownerAccount, 100))
-  //     .then(() => transfer(ownerAccount, userAccount, 33, shouldFail));
-  //     // .then(() => checkBalance(userAccount, 33))
-  //     // .then(() => checkBalance(ownerAccount, 67));
-  // });
+  it('should transfer tokens to authorized address ', () => {
+    const shouldFail = false;
+    return checkBalance(ownerAccount, 0)
+      .then(() => authorize(ownerAccount))
+      .then(() => authorize(userAccount))
+      .then(() => mintTokens(ownerAccount, 100))
+      .then(() => checkBalance(ownerAccount, 100))
+      .then(() => transfer(ownerAccount, userAccount, 33, shouldFail))
+      .then(() => checkBalance(userAccount, 33))
+      .then(() => checkBalance(ownerAccount, 67));
+  });
 
 
-  // it('should not transfer tokens to an unauthorized address', () => {
-  //   const shouldFail = true;
-  //   return checkBalance(ownerAccount, 0)
-  //     .then(() => authorize(ownerAccount))
-  //     .then(() => mintTokens(ownerAccount, 100))
-  //     .then(() => transfer(ownerAccount, userAccount, 40, shouldFail))
-  //     .then(() => checkBalance(userAccount, 0))
-  //     .then(() => checkBalance(ownerAccount, 100));
-  // });
-
-  it('should not transfer tokens from an unauthorized address', () => {
+  it('should not transfer tokens to an unauthorized address', () => {
     const shouldFail = true;
-      return checkBalance(ownerAccount, 0)
+    return checkBalance(ownerAccount, 0)
+      .then(() => authorize(ownerAccount))
+      .then(() => mintTokens(ownerAccount, 100))
+      .then(() => transfer(ownerAccount, userAccount, 40, shouldFail))
+      .then(() => checkBalance(userAccount, 0))
+      .then(() => checkBalance(ownerAccount, 100));
+  });
+
+  // Do we want unauthorized people to be able to send?
+  // Do we really nead unauthorizing action then (removal from the whitelist)?
+  it.skip('should not transfer tokens from an unauthorized address', () => {
+    const shouldFail = true;
+    return checkBalance(ownerAccount, 0)
       .then(() => authorize(userAccount))
       .then(() => authorize(ownerAccount))
       .then(() => mintTokens(ownerAccount, 100))

@@ -58,20 +58,25 @@ describe('Eth', () => {
     };
 
     it('should deploy contract', async function () {
-      simpleContract = await Eth.deployContract('SimpleContract', options);
-      console.log('contract deployed at ', simpleContract.options.address);
-      assert.isDefined(simpleContract);
-      assert.isDefined(simpleContract.options.address);
-      simpleContractAddress = simpleContract.options.address;
+      return Eth.deployContract('SimpleContract', options)
+        .then(resultContract => {
+          simpleContract = resultContract;
+          console.log('contract deployed at ', resultContract.options.address);
+          assert.isDefined(resultContract);
+          assert.isDefined(resultContract.options.address);
+          simpleContractAddress = resultContract.options.address;
+        });
     });
 
-    it('should get value from simple contract', async function () {
+    it('should get value from simple contract', function () {
       assert.equal(simpleContract.options.address, simpleContractAddress);
-      let valueBN = await simpleContract.methods.value().call();
-      //convert from bignum to string
-      let value = valueBN.toString();
-      console.log('simpleContract.value()', value);
-      assert.equal(value, String(initialValue));
+      return simpleContract.methods.value().call()
+        .then(valueBN => {
+          //convert from bignum to string
+          let value = valueBN.toString();
+          console.log('simpleContract.value()', value);
+          assert.equal(value, String(initialValue));
+        });
     });
 
     it('should increment value from simple contract', async function () {
@@ -104,18 +109,12 @@ describe('Eth', () => {
       txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
     };
 
-    it('should deploy contract', async function () {
-      this.timeout(20000);
-
-      console.log(`start ${new Date(start * 1000)} to end ${new Date(end * 1000)}`);
-
-      // console.log('deployContract params', options.params)
-      // console.log('deployContract txParams', options.txParams)
-      deal = await Eth.deployContract('Deal', options);
-      // console.log('got ',deal);
-      assert.isDefined(deal);
-      assert.isDefined(deal.options.address);
-      return deal;
+    it('should deploy contract', function () {
+      return Eth.deployContract('Deal', options)
+        .then(deal => {
+          assert.isDefined(deal);
+          assert.isDefined(deal.options.address);
+        });
     });
   });
 
