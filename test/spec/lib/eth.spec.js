@@ -15,13 +15,15 @@ const testAccount = {
 describe('Eth', () => {
   before(() => Wallet.deleteById(testAccount.address));
   describe('account', () => {
-    it('should generate address ', async () => {
-      const result = await Eth.generateAccount();
-      assert.isString(result);
-      const account = await Wallet.find(result);
-      // console.log('account', account);
-      assert.equal(account.address, result);
-      assert.isString(account.privateKey);
+    it('should generate address ', () => {
+      return Eth.generateAccount()
+      .then((result) => {
+        assert.isString(result);
+        return Wallet.find(result)
+      })
+      .then((account) => {
+        assert.isString(account.privateKey);
+      })
     });
   });
 
@@ -33,17 +35,24 @@ describe('Eth', () => {
    * eth gets used up over time)
    */
   describe('balance', () => {
-    it('should get balance ', async () => {
-      const result = await Eth.generateAccount();
-      const address = result;
-      const balance = await Eth.getBalance(address);
-      assert.equal(0, balance);
+    it('should get balance ', () => {
+
+      return Eth.generateAccount()
+      .then((result) => {
+        const address = result;
+        return Eth.getBalance(address)
+      })
+      .then((balance) => {
+        assert.equal(0, balance);
+      });
     });
 
-    it('should get non-zero balance of existing address', async () => {
-      const balance = await Eth.getBalance(testAccount.address);
-      console.log('balance', balance);
-      assert.isAbove(balance, 0, 'should have balance');
+    it('should get non-zero balance of existing address', () => {
+      return Eth.getBalance(testAccount.address)
+      .then((balance) => {
+        console.log('balance', balance);
+        assert.isAbove(balance, 0, 'should have balance');
+      });
     });
   });
 
@@ -57,7 +66,7 @@ describe('Eth', () => {
       txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
     };
 
-    it('should deploy contract', async function () {
+    it('should deploy contract', () => {
       return Eth.deployContract('SimpleContract', options)
         .then(resultContract => {
           simpleContract = resultContract;
@@ -79,19 +88,21 @@ describe('Eth', () => {
         });
     });
 
-    it('should increment value from simple contract', async function () {
+    it('should increment value from simple contract', () => {
       assert.isDefined(simpleContract);
       assert.equal(simpleContract.options.address, simpleContractAddress);
 
-      let result = await simpleContract.methods.add(incrementValue).send(options.txParams);
-
-      // is there something to test here - eg, transaction result?  maybe add an event to the simplecontract (increment event)
-
-      let newValueBN = await simpleContract.methods.value().call();
-      //new value should be bignum
-      let newValue = newValueBN.toString();
-      console.log('simpleContract.value()', newValue);
-      assert.equal(newValue, String(initialValue + incrementValue));
+      return simpleContract.methods.add(incrementValue).send(options.txParams)
+      .then((result) => { 
+        // is there something to test here - eg, transaction result?  maybe add an event to the simplecontract (increment event)
+        return simpleContract.methods.value().call();
+      })
+      .then((newValueBN) => {
+        //new value should be bignum
+        let newValue = newValueBN.toString();
+        console.log('simpleContract.value()', newValue);
+        assert.equal(newValue, String(initialValue + incrementValue));
+      });
     });
 
   });
@@ -109,7 +120,7 @@ describe('Eth', () => {
       txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
     };
 
-    it('should deploy contract', async () => {
+    it('should deploy contract', () => {
       console.log('deal deployment');
       return Eth.deployContract('Deal', options)
         .then(deal => {
@@ -120,7 +131,7 @@ describe('Eth', () => {
   });
 
   describe('ETH actions', () => {
-    it('send eth to address', async () => {
+    it('send eth to address', () => {
       const receiver = web3.eth.accounts.create();
       return Wallet
         .findOrCreate(testAccount.address, testAccount)
