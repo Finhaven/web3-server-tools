@@ -17,11 +17,11 @@ describe('Eth', () => {
   describe('account', () => {
     it('should generate address ', () => {
       return Eth.generateAccount()
-      .then((result) => {
+      .then(result => {
         assert.isString(result);
         return Wallet.find(result)
       })
-      .then((account) => {
+      .then(account => {
         assert.isString(account.privateKey);
       })
     });
@@ -38,18 +38,18 @@ describe('Eth', () => {
     it('should get balance ', () => {
 
       return Eth.generateAccount()
-      .then((result) => {
+      .then(result => {
         const address = result;
         return Eth.getBalance(address)
       })
-      .then((balance) => {
+      .then(balance => {
         assert.equal(0, balance);
       });
     });
 
     it('should get non-zero balance of existing address', () => {
       return Eth.getBalance(testAccount.address)
-      .then((balance) => {
+      .then(balance => {
         console.log('balance', balance);
         assert.isAbove(balance, 0, 'should have balance');
       });
@@ -93,11 +93,11 @@ describe('Eth', () => {
       assert.equal(simpleContract.options.address, simpleContractAddress);
 
       return simpleContract.methods.add(incrementValue).send(options.txParams)
-      .then((result) => { 
+      .then(result => { 
         // is there something to test here - eg, transaction result?  maybe add an event to the simplecontract (increment event)
         return simpleContract.methods.value().call();
       })
-      .then((newValueBN) => {
+      .then(newValueBN => {
         //new value should be bignum
         let newValue = newValueBN.toString();
         console.log('simpleContract.value()', newValue);
@@ -110,7 +110,7 @@ describe('Eth', () => {
   describe('deal contracts', () => {
     const now = Date.now();
     const oneMonth = 1000 * 60 * 60 * 24 * 30; // 30 days anyway
-    const start = Number((now / 1000).toFixed());
+    const start = Number(((now + oneMonth / 30) / 1000).toFixed());
     const end = Number((((2 * oneMonth) + now) / 1000).toFixed());
     const destinationAddress = accounts[5];
     const rate = new BigNumber(1000);
@@ -124,7 +124,10 @@ describe('Eth', () => {
       console.log('deal deployment');
       return Eth.deployContract('Deal', options)
         .then(deal => {
+          console.log('!!!!!!');
+          console.log(deal);
           assert.isDefined(deal);
+          console.log('DEAL IS DEFINED');
           assert.isDefined(deal.options.address);
         });
     });
@@ -138,7 +141,7 @@ describe('Eth', () => {
         .then(() => {
           return Eth.getBalance(testAccount.address);
         })
-        .then((balance) => {
+        .then(balance => {
           console.log('Sender: ', testAccount.address);
           console.log('Old balance: ', balance.toString());
         })
@@ -147,17 +150,17 @@ describe('Eth', () => {
           to: receiver.address,
           amount: '2'
         }))
-        .then((tx) => {
+        .then(tx => {
           console.log('eth transfer ', tx);
           return Eth.getBalance(testAccount.address);
         })
-        .then((balance) => {
+        .then(balance => {
           console.log('New balance ', balance.toString());
         })
-        .then((tx) => {
+        .then(tx => {
           return Eth.getBalance(receiver.address);
         })
-        .then((balance) => {
+        .then(balance => {
           console.log('New balance ', balance.toString());
           assert.equal(balance.toString(), '2')
         });
