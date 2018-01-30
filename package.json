@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/lib/eth.js",
+  "files": [
+    "src",
+    "truffle"
+  ],
   "scripts": {
-    "postinstall": "npm run truffle:compile",
+    "postinstall": "echo \"\n\n\n\ncontracts included in this project require compilation on a fresh checkout: npm run truffle:compile\n\n\n\n\"",
     "pretest": "./ensure-ganache-running.sh || (npm run start:testrpc &)",
-    "test": "mocha",
+    "test": "npm run truffle:compile && mocha",
     "test:lint": "eslint -c .eslintrc . --color=true --quiet",
     "test:lint:fix": "eslint -c .eslintrc . --color=true --quiet --fix",
     "test:truffle": "cd truffle && truffle test",
