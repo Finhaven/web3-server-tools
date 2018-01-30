@@ -146,9 +146,12 @@ const Eth = {
     contract.setProvider(provider);
     return contract;
   },
-  deployContract(name, options = {}) {
-    const contract = Eth.loadContract(name);
-    return contract.deploy({arguments: options.params}).send(options.txParams);
+  async deployContract(name, options = {}) {
+    const contractBody = Eth.loadContract(name);
+    contractInstance = await contractBody.deploy({arguments: options.params}).send(options.txParams);
+    // Workaround, see https://github.com/FrontierFoundry/web3-server-tools/issues/3
+    contractInstance.setProvider(provider);
+    return contractInstance;
   },
   findTransactions(address) {
     logger.debug('findTransactions(address)', address);
