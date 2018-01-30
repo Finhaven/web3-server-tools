@@ -55,6 +55,7 @@
     "bignumber.js": "^5.0.0",
     "ethereumjs-tx": "^1.3.3",
     "lodash": "^4.17.4",
+    "solc": "^0.4.18",
     "web3": "^1.0.0-beta.27"
   }
 }
