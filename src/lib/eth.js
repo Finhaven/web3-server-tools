@@ -210,7 +210,7 @@ const Eth = {
               to,
               value: 0,
               nonce: transactionCount,  // the nonce is the number of transactions on this account
-              // data: ''
+              data: data
             };
 
             if (amount) {

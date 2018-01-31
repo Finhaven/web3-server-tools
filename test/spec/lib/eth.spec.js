@@ -107,32 +107,6 @@ describe('Eth', () => {
 
   });
 
-  describe('deal contracts', () => {
-    const now = Date.now();
-    const oneMonth = 1000 * 60 * 60 * 24 * 30; // 30 days anyway
-    const start = Number(((now + oneMonth / 30) / 1000).toFixed());
-    const end = Number((((2 * oneMonth) + now) / 1000).toFixed());
-    const destinationAddress = accounts[5];
-    const rate = new BigNumber(1000);
-
-    const options = {
-      params: [start, end, rate, destinationAddress],
-      txParams: {from: testAccount.address, gas: '6712388', gasPrice: '0x174876e800'},
-    };
-
-    it('should deploy contract', () => {
-      console.log('deal deployment');
-      return Eth.deployContract('Deal', options)
-        .then(deal => {
-          console.log('!!!!!!');
-          console.log(deal);
-          assert.isDefined(deal);
-          console.log('DEAL IS DEFINED');
-          assert.isDefined(deal.options.address);
-        });
-    });
-  });
-
   describe('ETH actions', () => {
     it('send eth to address', () => {
       const receiver = web3.eth.accounts.create();
