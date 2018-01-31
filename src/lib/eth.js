@@ -181,14 +181,46 @@ const Eth = {
         return nonZero;
       });
   },
-  transfer: function (options) {
+
+  prepareTx: function (options) {
     const {
       amount,
       data,
       from,
       to,
     } = options;
+    return Promise.all([web3.eth.getGasPrice(), web3.eth.getTransactionCount(from)])
+      .then(([gasPrice, transactionCount]) => {
+        logger.debug('gas price', gasPrice);
+        const gasPriceHex = web3.utils.numberToHex(gasPrice);
+        const gasLimitHex = web3.utils.numberToHex(68308);
 
+        const tra = {
+          gasPrice: gasPriceHex,
+          gasLimit: gasLimitHex,
+          from,
+          to,
+          value: 0,
+          nonce: transactionCount,  // the nonce is the number of transactions on this account
+          // data: ''
+        };
+
+        if (amount) {
+          const weiAmount = web3.utils.toWei(amount);
+          logger.debug(`amount ${amount} in wei is ${weiAmount}`);
+          tra.value = web3.utils.numberToHex(weiAmount);
+        }
+        if (data) {
+          logger.debug(`data ${data}`);
+          tra.data = data;
+        }
+
+        const tx = new Tx(tra);
+        return tx;
+      });
+  },
+
+  submitTx: function (preparedTx, from) {
     return Wallet
       .find(from)
       .then((w) => {
@@ -197,57 +229,41 @@ const Eth = {
         }
 
         logger.debug('found wallet ', w);
-        return Promise.all([web3.eth.getGasPrice(), web3.eth.getTransactionCount(from)])
-          .then(([gasPrice, transactionCount]) => {
-            logger.debug('gas price', gasPrice);
-            const gasPriceHex = web3.utils.numberToHex(gasPrice);
-            const gasLimitHex = web3.utils.numberToHex(68308);
+        const key = Buffer.from(w.privateKey.slice(2), 'hex');
+        preparedTx.sign(key);
 
-            const tra = {
-              gasPrice: gasPriceHex,
-              gasLimit: gasLimitHex,
-              from,
-              to,
-              value: 0,
-              nonce: transactionCount,  // the nonce is the number of transactions on this account
-              data: data
-            };
+        const feeCost = preparedTx.getUpfrontCost();
+        // tx.gas = feeCost;
+        logger.debug(`Total Amount of wei needed:${feeCost.toString()}`);
+        logger.debug(`Total Amount of eth needed:${web3.utils.fromWei(feeCost, 'ether').toString()}`);
 
-            if (amount) {
-              const weiAmount = web3.utils.toWei(amount);
-              logger.debug(`amount ${amount} in wei is ${weiAmount}`);
-              tra.value = web3.utils.numberToHex(weiAmount);
-            }
-            if (data) {
-              logger.debug(`data ${data}`);
-              tra.data = data;
+        const stx = preparedTx.serialize();
+        return new Promise((resolve, reject) => {
+          // return false;
+          web3.eth.sendSignedTransaction(`0x${stx.toString('hex')}`, (err, hash) => {
+            if (err) {
+              logger.debug(err);
+              return reject(err);
             }
 
-            logger.debug('sending tx', tra);
-            const key = Buffer.from(w.privateKey.slice(2), 'hex'); // slice off the 0x at the start
-            const tx = new Tx(tra);
-            tx.sign(key);
-
-            const feeCost = tx.getUpfrontCost();
-            // tx.gas = feeCost;
-            logger.debug(`Total Amount of wei needed:${feeCost.toString()}`);
-            logger.debug(`Total Amount of eth needed:${web3.utils.fromWei(feeCost, 'ether').toString()}`);
-
-            const stx = tx.serialize();
-            return new Promise((resolve, reject) => {
-              // return false;
-              web3.eth.sendSignedTransaction(`0x${stx.toString('hex')}`, (err, hash) => {
-                if (err) {
-                  logger.debug(err);
-                  return reject(err);
-                }
-
-                logger.debug(`transfer transaction hash ${hash}`);
-                return resolve(hash);
-              });
-            });
+            logger.debug(`transfer transaction hash ${hash}`);
+            return resolve(hash);
           });
+        });
       });
+  },
+
+  // options = {
+  //   amount,
+  //   data,
+  //   from,
+  //   to,
+  // };
+  transfer: function (options) {
+    return Eth.prepareTx(options)
+      .then((preparedTx) => {
+        return Eth.submitTx(preparedTx, options.from);
+    });
   },
 };
 

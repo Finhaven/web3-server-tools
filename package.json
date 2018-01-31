@@ -8,9 +8,9 @@
     "truffle"
   ],
   "scripts": {
-    "postinstall": "npm run truffle:compile",
+    "postinstall": "echo \"\n\n\n\ncontracts included in this project require compilation on a fresh checkout: npm run truffle:compile\n\n\n\n\"",
     "pretest": "./ensure-ganache-running.sh || (npm run start:testrpc &)",
-    "test": "mocha",
+    "test": "npm run truffle:compile && mocha",
     "test:lint": "eslint -c .eslintrc . --color=true --quiet",
     "test:lint:fix": "eslint -c .eslintrc . --color=true --quiet --fix",
     "test:truffle": "cd truffle && truffle test",
@@ -55,6 +55,7 @@
     "bignumber.js": "^5.0.0",
     "ethereumjs-tx": "^1.3.3",
     "lodash": "^4.17.4",
+    "solc": "^0.4.18",
     "web3": "^1.0.0-beta.27"
   }
 }

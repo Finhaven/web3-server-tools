@@ -139,5 +139,41 @@ describe('Eth', () => {
           assert.equal(balance.toString(), '2')
         });
     });
+
+    it('send eth to address in a deferred way', async () => {
+      const receiver = web3.eth.accounts.create();
+      let preparedTx;
+
+      return Wallet
+        .findOrCreate(testAccount.address, testAccount)
+        .then(() => {
+          return Eth.getBalance(testAccount.address);
+        })
+        .then((balance) => {
+          console.log('Sender: ', testAccount.address);
+          console.log('Old balance: ', balance.toString());
+        })
+        .then(() => Eth.prepareTx({
+          from: testAccount.address,
+          to: receiver.address,
+          amount: '2'
+        }))
+        .then((tx) => {
+          preparedTx = tx;
+          return Eth.getBalance(receiver.address);
+        })
+        .then((balance) => {
+          assert.equal(balance.toString(), '0')
+          return Eth.submitTx(preparedTx, testAccount.address);
+        })
+        .then((tx) => {
+          return Eth.getBalance(receiver.address);
+        })
+        .then((balance) => {
+          console.log('New balance ', balance.toString());
+          assert.equal(balance.toString(), '2')
+        });
+    });
+
   });
 });

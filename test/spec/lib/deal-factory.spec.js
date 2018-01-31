@@ -66,7 +66,7 @@ function createDeal (){
 
 
 // Need more tests
-// For example — outdated deal
+// For example — outdated deal or deal in future (should not buy tokens)
 describe('Deal Factory', () => {
 
   before(() => Wallet.deleteById(testAccount.address));
