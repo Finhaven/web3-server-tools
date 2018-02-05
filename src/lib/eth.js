@@ -148,8 +148,12 @@ const Eth = {
   },
   deployContract(name, options = {}) {
     const contractBody = Eth.loadContract(name);
-    options.txParams.to = undefined;
-    return contractBody.deploy({arguments: options.params}).send(options.txParams)
+    txParams = {
+      from: options.txParams.from,
+      gas: options.txParams.gas,
+      gasPrice: options.txParams.gasPrice
+    }
+    return contractBody.deploy({arguments: options.params}).send(txParams)
       .then(contractInstance => {
         // Workaround, see https://github.com/FrontierFoundry/web3-server-tools/issues/3
         contractInstance.setProvider(provider);
