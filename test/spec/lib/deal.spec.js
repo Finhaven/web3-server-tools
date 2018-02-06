@@ -106,11 +106,13 @@ describe('Deals', () => {
   before(() => Wallet.deleteById(testAccount.address));
   before(() => Wallet.deleteById(investorAccount.address));
 
-  it('authorization', () => {
+  describe('authorization', () => {
     before(() => {
       const now = Date.now();
       const dealStart = Number(((now + delay) / 1000).toFixed());
       const dealEnd = Number((((2 * oneMonth) + now) / 1000).toFixed());
+      console.log('Deal start', dealStart)
+      console.log('Deal end', dealEnd)
       return Eth.deployContract('DealFactory', options)
         .then(result => {
           dealFactory = result;
@@ -118,7 +120,7 @@ describe('Deals', () => {
         })
         .then(() => createDeal(dealStart, dealEnd))
         .then(() => {
-          return new Promise((resolve) => setTimeout(resolve, delay))
+          return new Promise((resolve) => setTimeout(resolve, delay * 2))
         })
     });
 
@@ -160,11 +162,19 @@ describe('Deals', () => {
           return deal.methods.authorize(investor).send(options.txParams)
         })
         .then(result => {
-          assert.equal(result.events.Authorizing.returnValues.investor, investor);
+          assert.equal(result.events.Authorizing.returnValues.investor.toLowerCase(), investor.toLowerCase());
           return dealToken.methods.balanceOf(investor).call()
         })
         .then(result => {
           assert.equal(result, 0);
+          console.log(buyTokensOptions);
+          buyTokensOptions.txParams.data = '';
+          // This actually works, but not raising event for now
+          // return Eth.transfer({
+          //   from: investor,
+          //   to: deal.options.address,
+          //   amount: etherInvested
+          // });
           return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
         })
         .then(result => {
@@ -180,22 +190,26 @@ describe('Deals', () => {
   it('should not buy tokens after deal ends', () => {
     const now = Date.now();
     const dealStart = Number(((now + delay) / 1000).toFixed());
-    const dealEnd = Number((((2 * oneMonth) + now) / 1000).toFixed());
 
     let investor = investorAccount.address;
     const etherInvested = '1';
     return Wallet
       .findOrCreate(investorAccount.address, investorAccount)
       .then(() => {
-        return createDeal(dealStart, dealStart + delay / 1000)
+        console.log('Deal start: ', dealStart)
+        console.log('Deal end: ', dealStart + delay * 4 / 1000)
+        return createDeal(dealStart, dealStart + delay * 4 / 1000)
       })
       .then(() => {
-        return new Promise((resolve) => setTimeout(resolve, delay))
+        console.log('Pause 1: ', Date.now())
+        return new Promise((resolve) => setTimeout(resolve, delay * 3))
       })
       .then(result => {
+        console.log('Pause 2: ', Date.now())
         return deal.methods.authorize(investor).send(options.txParams)
       })
       .then(result => {
+        console.log('Buy 1: ', Date.now())
         return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
       })
       .then(() => {
@@ -203,9 +217,10 @@ describe('Deals', () => {
       })
       .then(result => {
         assert.equal(result/rate, web3.utils.toWei(etherInvested, 'ether'));
-        return new Promise((resolve) => setTimeout(resolve, delay * 3))
+        return new Promise((resolve) => setTimeout(resolve, delay * 4))
       })
       .then(result => {
+        console.log('Buy 2: ', Date.now())
         return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
       })
       .then(() => {

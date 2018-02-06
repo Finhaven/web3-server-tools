@@ -197,7 +197,7 @@ const Eth = {
       .then(([gasPrice, transactionCount]) => {
         logger.debug('gas price', gasPrice);
         const gasPriceHex = web3.utils.numberToHex(gasPrice);
-        const gasLimitHex = web3.utils.numberToHex(68308);
+        const gasLimitHex = web3.utils.numberToHex(683080);
 
         const tra = {
           gasPrice: gasPriceHex,
