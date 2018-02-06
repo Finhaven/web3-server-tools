@@ -93,7 +93,7 @@ describe('Eth', () => {
       assert.equal(simpleContract.options.address, simpleContractAddress);
 
       return simpleContract.methods.add(incrementValue).send(options.txParams)
-      .then(result => { 
+      .then(result => {
         // is there something to test here - eg, transaction result?  maybe add an event to the simplecontract (increment event)
         return simpleContract.methods.value().call();
       })
@@ -122,7 +122,7 @@ describe('Eth', () => {
         .then(() => Eth.transfer({
           from: testAccount.address,
           to: receiver.address,
-          amount: '2'
+          amount: '0.02'
         }))
         .then(tx => {
           console.log('eth transfer ', tx);
@@ -136,7 +136,7 @@ describe('Eth', () => {
         })
         .then(balance => {
           console.log('New balance ', balance.toString());
-          assert.equal(balance.toString(), '2')
+          assert.equal(balance.toString(), '0.02')
         });
     });
 
@@ -156,7 +156,7 @@ describe('Eth', () => {
         .then(() => Eth.prepareTx({
           from: testAccount.address,
           to: receiver.address,
-          amount: '2'
+          amount: '0.02'
         }))
         .then((tx) => {
           preparedTx = tx;
@@ -171,7 +171,7 @@ describe('Eth', () => {
         })
         .then((balance) => {
           console.log('New balance ', balance.toString());
-          assert.equal(balance.toString(), '2')
+          assert.equal(balance.toString(), '0.02')
         });
     });
 
