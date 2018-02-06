@@ -214,7 +214,6 @@ describe('Deals', () => {
       })
       .catch(err => {
         assert.isDefined(err);
-        console.log(err);
         assert.equal(err.message, 'Returned error: VM Exception while processing transaction: revert')
       });
     });
