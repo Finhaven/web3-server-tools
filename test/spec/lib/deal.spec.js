@@ -16,7 +16,7 @@ const investorAccount = {
   privateKey: keys[1],
 };
 
-
+const etherInvested = '1';
 const delay = 2 * 1000;
 const oneMonth = 1000 * 60 * 60 * 24 * 30; // 30 days anyway
 const rate = new BigNumber(1000);
@@ -28,7 +28,7 @@ const options = {
 };
 
 const buyTokensOptions = {
-  txParams: {from: investorAccount.address, gas: '6712388', gasPrice: '0x174876e800', value: web3.utils.toWei('1', 'ether')}
+  txParams: {from: investorAccount.address, gas: '6712388', gasPrice: '0x174876e800', value: web3.utils.toWei(etherInvested, 'ether')}
 };
 
 let deal, dealFactory, dealToken;
@@ -154,20 +154,21 @@ describe('Deals', () => {
 
     it('should authorize investor and buy tokens by him', () => {
       let investor = investorAccount.address;
-      const etherInvested = '1';
       return Wallet
         .findOrCreate(investorAccount.address, investorAccount)
         .then(() => {
           return deal.methods.authorize(investor).send(options.txParams)
         })
-        .then(() => {
+        .then(result => {
+          assert.equal(result.events.Authorizing.returnValues.investor, investor);
           return dealToken.methods.balanceOf(investor).call()
         })
         .then(result => {
           assert.equal(result, 0);
           return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
         })
-        .then(() => {
+        .then(result => {
+          assert.equal(result.events.TokenPurchase.returnValues.value, web3.utils.toWei(etherInvested, 'ether'));
           return dealToken.methods.balanceOf(investor).call()
         })
         .then(result => {
@@ -186,7 +187,7 @@ describe('Deals', () => {
     return Wallet
       .findOrCreate(investorAccount.address, investorAccount)
       .then(() => {
-        return createDeal(dealStart, dealStart + delay)
+        return createDeal(dealStart, dealStart + delay / 1000)
       })
       .then(() => {
         return new Promise((resolve) => setTimeout(resolve, delay))
@@ -202,11 +203,9 @@ describe('Deals', () => {
       })
       .then(result => {
         assert.equal(result/rate, web3.utils.toWei(etherInvested, 'ether'));
-        console.log(Date.now())
-        return new Promise((resolve) => setTimeout(resolve, delay * 2))
+        return new Promise((resolve) => setTimeout(resolve, delay * 3))
       })
       .then(result => {
-        console.log(Date.now())
         return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
       })
       .then(() => {
