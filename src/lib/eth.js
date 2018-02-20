@@ -242,18 +242,19 @@ const Eth = {
         logger.debug(`Total Amount of eth needed:${web3.utils.fromWei(feeCost, 'ether').toString()}`);
 
         const stx = preparedTx.serialize();
-        return new Promise((resolve, reject) => {
-          // return false;
-          web3.eth.sendSignedTransaction(`0x${stx.toString('hex')}`, (err, hash) => {
-            if (err) {
-              logger.debug(err);
-              return reject(err);
-            }
-
-            logger.debug(`transfer transaction hash ${hash}`);
-            return resolve(hash);
-          });
-        });
+        return web3.eth.sendSignedTransaction(`0x${stx.toString('hex')}`);
+        // return new Promise((resolve, reject) => {
+        //   // return false;
+        //   web3.eth.sendSignedTransaction(`0x${stx.toString('hex')}`, (err, hash) => {
+        //     if (err) {
+        //       logger.debug(err);
+        //       return reject(err);
+        //     }
+        //
+        //     logger.debug(`transfer transaction hash ${hash}`);
+        //     return resolve(hash);
+        //   });
+        // });
       });
   },
 
