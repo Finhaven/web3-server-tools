@@ -99,6 +99,22 @@ describe('DealToken', () => {
       .then(() => checkBalance(userAccount, 25));
   });
 
+  it('should not mint tokens by not owner ', () => {
+    return authorize(userAccount)
+      .then(() => checkBalance(userAccount, 0))
+      .then(() => {
+        notOwnerTxParams = {from: userAccount, gas: '6712388', gasPrice: '0x174876e800'};
+        return dealToken.methods.mint(userAccount, 2).send(notOwnerTxParams)
+      })
+      .then(() => {
+        return Promise.reject('Expected method to reject.');
+      })
+      .catch((err) => {
+        assert.isDefined(err);
+        assert.equal(err.message, 'Returned error: VM Exception while processing transaction: revert')
+      });
+  });
+
   it('should transfer tokens to authorized address ', () => {
     const shouldFail = false;
     return checkBalance(ownerAccount, 0)
@@ -137,5 +153,3 @@ describe('DealToken', () => {
   });
 
 });
-
-
