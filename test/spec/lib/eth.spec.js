@@ -42,9 +42,9 @@ describe('Eth', () => {
     });
 
     it('should get non-zero balance of existing address', async () => {
-      const balance = Number(await Eth.getBalance(testAccount.address));
+      const balance = await Eth.getBalance(testAccount.address);
       console.log('balance', balance);
-      assert.isAbove(balance, 0, 'should have balance');
+      assert.isAbove(balance, '0', 'should have balance');
     });
   });
 
