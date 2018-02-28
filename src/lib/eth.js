@@ -50,7 +50,7 @@ const Eth = {
               return reject(err);
             }
 
-            return resolve(Number(web3.utils.fromWei(result, 'ether')));
+            return resolve(web3.utils.fromWei(result, 'ether'));
           });
       } catch (err) {
         return reject(err);
