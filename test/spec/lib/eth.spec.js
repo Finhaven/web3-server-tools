@@ -54,6 +54,8 @@ describe('Eth', () => {
     describe('precision', () => {
       it('can handle small changes without rounding errors', async () => {
         const address = await Eth.generateAccount();
+
+        await Wallet.findOrCreate(testAccount.address, testAccount);
         const sendEth = (amount) => Eth.transfer({ from: testAccount.address, to: address, amount });
 
         await sendEth('0.000000000000000001');
@@ -63,8 +65,7 @@ describe('Eth', () => {
         assert.equal(await Eth.getBalance(address), '1.000000000000000002');
       });
 
-      it('can handle large vales without rounding errors', () => {
-      });
+      it('can handle large vales without rounding errors'); // waiting on --defaultBalanceEther to work
     });
   });
 
