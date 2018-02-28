@@ -35,8 +35,7 @@ describe('Eth', () => {
    */
   describe('balance', () => {
     it('should get balance ', async () => {
-      const result = await Eth.generateAccount();
-      const address = result;
+      const address = await Eth.generateAccount();
       const balance = await Eth.getBalance(address);
       assert.equal(0, balance);
     });
@@ -47,9 +46,25 @@ describe('Eth', () => {
     });
 
     it('should get non-zero balance of existing address', async () => {
-      const balance = Number(await Eth.getBalance(testAccount.address));
-      console.log('balance', balance);
-      assert.isAbove(balance, 0, 'should have balance');
+      const balance = new BigNumber(await Eth.getBalance(testAccount.address));
+      console.log('balance', balance.toString(10));
+      assert(balance.gt(0), 'should have balance');
+    });
+
+    describe('precision', () => {
+      it('can handle small changes without rounding errors', async () => {
+        const address = await Eth.generateAccount();
+        const sendEth = (amount) => Eth.transfer({ from: testAccount.address, to: address, amount });
+
+        await sendEth('0.000000000000000001');
+        await sendEth('1');
+        await sendEth('0.000000000000000001');
+
+        assert.equal(await Eth.getBalance(address), '1.000000000000000002');
+      });
+
+      it('can handle large vales without rounding errors', () => {
+      });
     });
   });
 
