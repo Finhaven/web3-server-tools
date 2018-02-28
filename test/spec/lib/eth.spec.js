@@ -35,24 +35,38 @@ describe('Eth', () => {
    * eth gets used up over time)
    */
   describe('balance', () => {
-    it('should get balance ', () => {
-
-      return Eth.generateAccount()
-      .then(result => {
-        const address = result;
-        return Eth.getBalance(address)
-      })
-      .then(balance => {
-        assert.equal(0, balance);
-      });
+    it('should get balance ', async () => {
+      const address = await Eth.generateAccount();
+      const balance = await Eth.getBalance(address);
+      assert.equal(0, balance);
     });
 
-    it('should get non-zero balance of existing address', () => {
-      return Eth.getBalance(testAccount.address)
-      .then(balance => {
-        console.log('balance', balance);
-        assert.isAbove(balance, 0, 'should have balance');
+    it('returns a string', async () => {
+      const balance = await Eth.getBalance(testAccount.address);
+      assert.isString(balance);
+    });
+
+    it('should get non-zero balance of existing address', async () => {
+      const balance = new BigNumber(await Eth.getBalance(testAccount.address));
+      console.log('balance', balance.toString(10));
+      assert(balance.gt(0), 'should have balance');
+    });
+
+    describe('precision', () => {
+      it('can handle small changes without rounding errors', async () => {
+        const address = await Eth.generateAccount();
+
+        await Wallet.findOrCreate(testAccount.address, testAccount);
+        const sendEth = (amount) => Eth.transfer({ from: testAccount.address, to: address, amount });
+
+        await sendEth('0.000000000000000001');
+        await sendEth('1');
+        await sendEth('0.000000000000000001');
+
+        assert.equal(await Eth.getBalance(address), '1.000000000000000002');
       });
+
+      it('can handle large vales without rounding errors'); // waiting on --defaultBalanceEther to work
     });
   });
 
