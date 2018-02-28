@@ -41,10 +41,15 @@ describe('Eth', () => {
       assert.equal(0, balance);
     });
 
-    it('should get non-zero balance of existing address', async () => {
+    it('returns a BigNumber', async () => {
       const balance = await Eth.getBalance(testAccount.address);
+      assert.equal(BigNumber.isBigNumber(balance), "should be a BigNumber");
+    });
+
+    it('should get non-zero balance of existing address', async () => {
+      const balance = Number(await Eth.getBalance(testAccount.address));
       console.log('balance', balance);
-      assert.isAbove(balance, '0', 'should have balance');
+      assert.isAbove(balance, 0, 'should have balance');
     });
   });
 
