@@ -16,6 +16,8 @@ const web3 = new Web3(providerUrl);
 const provider = web3.currentProvider;
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
 
+const gasLimit = process.env.ETH_GAS_LIMIT || 683080;
+
 const Eth = {
   getAddressUrl(address) {
     return `https://${etherscanNetwork}/address/${address}`;
@@ -146,9 +148,9 @@ const Eth = {
     contract.setProvider(provider);
     return contract;
   },
-  deployContract(name, options = {}) {
+  deployContract(name, options) {
     const contractBody = Eth.loadContract(name);
-    txParams = {
+    const txParams = {
       from: options.txParams.from,
       gas: options.txParams.gas,
       gasPrice: options.txParams.gasPrice
@@ -197,7 +199,7 @@ const Eth = {
       .then(([gasPrice, transactionCount]) => {
         logger.debug('gas price', gasPrice);
         const gasPriceHex = web3.utils.numberToHex(gasPrice);
-        const gasLimitHex = web3.utils.numberToHex(683080);
+        const gasLimitHex = web3.utils.numberToHex(gasLimit);
 
         const tra = {
           gasPrice: gasPriceHex,

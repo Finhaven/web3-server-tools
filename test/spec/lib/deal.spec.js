@@ -135,7 +135,6 @@ describe('Deals', () => {
         })
         .then(result => {
           assert.equal(result, 0);
-          // I wanted to use plain transfer but it reverts for now
           return deal.methods.buyTokens(investor)
             .send(buyTokensOptions.txParams)
         })
@@ -169,7 +168,7 @@ describe('Deals', () => {
           assert.equal(result, 0);
           console.log(buyTokensOptions);
           buyTokensOptions.txParams.data = '';
-          // This actually works, but not raising event for now
+          // FIXME waiting for https://github.com/Finhaven/web3-server-tools/issues/13
           // return Eth.transfer({
           //   from: investor,
           //   to: deal.options.address,

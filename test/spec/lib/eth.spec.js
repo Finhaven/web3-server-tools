@@ -96,7 +96,7 @@ describe('Eth', () => {
       return simpleContract.methods.value().call()
         .then(valueBN => {
           //convert from bignum to string
-          let value = valueBN.toString();
+          const value = valueBN.toString();
           console.log('simpleContract.value()', value);
           assert.equal(value, String(initialValue));
         });
@@ -113,7 +113,7 @@ describe('Eth', () => {
       })
       .then(newValueBN => {
         //new value should be bignum
-        let newValue = newValueBN.toString();
+        const newValue = newValueBN.toString();
         console.log('simpleContract.value()', newValue);
         assert.equal(newValue, String(initialValue + incrementValue));
       });
