@@ -43,7 +43,7 @@ describe('Eth', () => {
 
     it('returns a BigNumber', async () => {
       const balance = await Eth.getBalance(testAccount.address);
-      assert.equal(BigNumber.isBigNumber(balance), "should be a BigNumber");
+      assert(BigNumber.isBigNumber(balance), "should be a BigNumber");
     });
 
     it('should get non-zero balance of existing address', async () => {
