@@ -100,16 +100,19 @@ describe('DealToken', () => {
   });
 
   it('should not mint tokens by not owner ', () => {
+    let failedProperly = false;
     return authorize(userAccount)
       .then(() => checkBalance(userAccount, 0))
       .then(() => {
         notOwnerTxParams = {from: userAccount, gas: '6712388', gasPrice: '0x174876e800'};
+        failedProperly = true;
         return dealToken.methods.mint(userAccount, 2).send(notOwnerTxParams)
       })
       .then(() => {
         return Promise.reject('Expected method to reject.');
       })
       .catch((err) => {
+        assert(failedProperly, 'Test failed earlier than expected');
         assert.isDefined(err);
         assert.equal(err.message, 'Returned error: VM Exception while processing transaction: revert')
       });

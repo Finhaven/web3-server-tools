@@ -164,6 +164,25 @@ const Eth = {
         console.log('error while deploying contract: ', e);
       })
   },
+
+  //FIXME seems not working with web3.js 1.0 for now
+  increaseTimeTestRPC: function(seconds) {
+    return web3.currentProvider.send({
+      jsonrpc: "2.0",
+      method: "evm_increaseTime",
+      params: [seconds],
+      id: 0
+    });
+  },
+
+  getCurrentTimestamp: function() {
+    return web3.eth.getBlockNumber()
+      .then((blockNumber) => web3.eth.getBlock(blockNumber))
+      .then((blockInfo) => {
+        return blockInfo.timestamp;
+      })
+  },
+
   findTransactions(address) {
     logger.debug('findTransactions(address)', address);
     const url = `https://${etherscanNetwork}/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&` +

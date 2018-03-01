@@ -17,7 +17,7 @@ const investorAccount = {
 };
 
 const etherInvested = '1';
-const delay = 2 * 1000;
+const delay = 1 * 1000;
 const oneMonth = 1000 * 60 * 60 * 24 * 30; // 30 days anyway
 const rate = new BigNumber(1000);
 
@@ -62,7 +62,7 @@ function createDeal (start, end){
 describe('Deal factory', () => {
   const now = Date.now();
   const dealStart = Number(((now + delay) / 1000).toFixed());
-  const dealEnd = Number((((2 * oneMonth) + now) / 1000).toFixed());
+  const dealEnd = Number(((now + delay + oneMonth) / 1000).toFixed());
 
   before(() => {
     return Eth.deployContract('DealFactory', options)
@@ -97,10 +97,6 @@ describe('Deal factory', () => {
   });
 });
 
-
-
-
-// Need more tests
 describe('Deals', () => {
 
   before(() => Wallet.deleteById(testAccount.address));
@@ -110,24 +106,27 @@ describe('Deals', () => {
     before(() => {
       const now = Date.now();
       const dealStart = Number(((now + delay) / 1000).toFixed());
-      const dealEnd = Number((((2 * oneMonth) + now) / 1000).toFixed());
+      const dealEnd = Number(((now + delay + oneMonth) / 1000).toFixed());
       console.log('Deal start', dealStart)
       console.log('Deal end', dealEnd)
       return Eth.deployContract('DealFactory', options)
-        .then(result => {
+      .then(result => {
           dealFactory = result;
           return result;
-        })
-        .then(() => createDeal(dealStart, dealEnd))
-        .then(() => {
-          return new Promise((resolve) => setTimeout(resolve, delay * 2))
-        })
+      })
+      .then(() => createDeal(dealStart, dealEnd))
+      .then(() => {
+        // return Eth.increaseTime(delay * 2 / 1000);
+        // return new Promise(() => Eth.increaseTime(delay * 2 / 1000));
+        return new Promise((resolve) => setTimeout(resolve, delay * 2))
+      })
     });
 
     it('should not buy tokens by unauthorized investor', () => {
-      let investor = investorAccount.address;
+      const investor = investorAccount.address;
       const weiInvested = '3';
       const value = 0.00003;
+      let failedProperly = false;
       return Wallet
         .findOrCreate(investorAccount.address, investorAccount)
         .then(() => {
@@ -135,6 +134,8 @@ describe('Deals', () => {
         })
         .then(result => {
           assert.equal(result, 0);
+          console.log('buying tokens');
+          failedProperly = true;
           return deal.methods.buyTokens(investor)
             .send(buyTokensOptions.txParams)
         })
@@ -142,6 +143,7 @@ describe('Deals', () => {
           return Promise.reject('Expected method to reject.');
         })
         .catch(err => {
+          assert(failedProperly, 'Test failed earlier than expected');
           assert.isDefined(err);
           assert.equal(err.message, 'Returned error: VM Exception while processing transaction: revert')
         })
@@ -154,7 +156,7 @@ describe('Deals', () => {
       });
 
     it('should authorize investor and buy tokens by him', () => {
-      let investor = investorAccount.address;
+      const investor = investorAccount.address;
       return Wallet
         .findOrCreate(investorAccount.address, investorAccount)
         .then(() => {
@@ -189,18 +191,20 @@ describe('Deals', () => {
   it('should not buy tokens after deal ends', () => {
     const now = Date.now();
     const dealStart = Number(((now + delay) / 1000).toFixed());
-
-    let investor = investorAccount.address;
+    let failedProperly = false;
+    const investor = investorAccount.address;
     const etherInvested = '1';
     return Wallet
       .findOrCreate(investorAccount.address, investorAccount)
       .then(() => {
         console.log('Deal start: ', dealStart)
         console.log('Deal end: ', dealStart + delay * 4 / 1000)
+        console.log('Before creating deal: ', Date.now() / 1000)
         return createDeal(dealStart, dealStart + delay * 4 / 1000)
       })
       .then(() => {
         console.log('Pause 1: ', Date.now())
+        // return new Promise(() => Eth.increaseTime(delay * 3 / 1000));
         return new Promise((resolve) => setTimeout(resolve, delay * 3))
       })
       .then(result => {
@@ -220,17 +224,16 @@ describe('Deals', () => {
       })
       .then(result => {
         console.log('Buy 2: ', Date.now())
+        failedProperly = true;
         return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
       })
       .then(() => {
         return Promise.reject('Expected method to reject.');
       })
       .catch(err => {
+        assert(failedProperly, 'Test failed earlier than expected');
         assert.isDefined(err);
         assert.equal(err.message, 'Returned error: VM Exception while processing transaction: revert')
       });
     });
-
-
-
 });
