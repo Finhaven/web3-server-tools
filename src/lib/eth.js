@@ -16,6 +16,8 @@ const web3 = new Web3(providerUrl);
 const provider = web3.currentProvider;
 const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
 
+const gasLimit = process.env.ETH_GAS_LIMIT || 683080;
+
 const Eth = {
   getAddressUrl(address) {
     return `https://${etherscanNetwork}/address/${address}`;
@@ -146,13 +148,41 @@ const Eth = {
     contract.setProvider(provider);
     return contract;
   },
-  async deployContract(name, options = {}) {
+  deployContract(name, options) {
     const contractBody = Eth.loadContract(name);
-    contractInstance = await contractBody.deploy({arguments: options.params}).send(options.txParams);
-    // Workaround, see https://github.com/FrontierFoundry/web3-server-tools/issues/3
-    contractInstance.setProvider(provider);
-    return contractInstance;
+    const txParams = {
+      from: options.txParams.from,
+      gas: options.txParams.gas,
+      gasPrice: options.txParams.gasPrice
+    }
+    return contractBody.deploy({arguments: options.params}).send(txParams)
+      .then(contractInstance => {
+        // Workaround, see https://github.com/FrontierFoundry/web3-server-tools/issues/3
+        contractInstance.setProvider(provider);
+        return contractInstance;
+      }).catch(e => {
+        console.log('error while deploying contract: ', e);
+      })
   },
+
+  //FIXME seems not working with web3.js 1.0 for now
+  increaseTimeTestRPC: function(seconds) {
+    return web3.currentProvider.send({
+      jsonrpc: "2.0",
+      method: "evm_increaseTime",
+      params: [seconds],
+      id: 0
+    });
+  },
+
+  getCurrentTimestamp: function() {
+    return web3.eth.getBlockNumber()
+      .then((blockNumber) => web3.eth.getBlock(blockNumber))
+      .then((blockInfo) => {
+        return blockInfo.timestamp;
+      })
+  },
+
   findTransactions(address) {
     logger.debug('findTransactions(address)', address);
     const url = `https://${etherscanNetwork}/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&` +
@@ -188,7 +218,7 @@ const Eth = {
       .then(([gasPrice, transactionCount]) => {
         logger.debug('gas price', gasPrice);
         const gasPriceHex = web3.utils.numberToHex(gasPrice);
-        const gasLimitHex = web3.utils.numberToHex(68308);
+        const gasLimitHex = web3.utils.numberToHex(gasLimit);
 
         const tra = {
           gasPrice: gasPriceHex,
@@ -233,18 +263,7 @@ const Eth = {
         logger.debug(`Total Amount of eth needed:${web3.utils.fromWei(feeCost, 'ether').toString()}`);
 
         const stx = preparedTx.serialize();
-        return new Promise((resolve, reject) => {
-          // return false;
-          web3.eth.sendSignedTransaction(`0x${stx.toString('hex')}`, (err, hash) => {
-            if (err) {
-              logger.debug(err);
-              return reject(err);
-            }
-
-            logger.debug(`transfer transaction hash ${hash}`);
-            return resolve(hash);
-          });
-        });
+        return web3.eth.sendSignedTransaction(`0x${stx.toString('hex')}`);
       });
   },
 
