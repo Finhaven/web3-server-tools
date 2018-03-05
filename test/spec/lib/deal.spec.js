@@ -1,10 +1,11 @@
 const Eth = require('../../../src/lib/eth');
+const Evm = require('../../utils/evm');
+
 const Wallet = require('../../../src/models/wallet'),
   Web3 = require('web3'),
   web3 = new Web3(),
   BigNumber = require('bignumber.js'),
   {accounts, keys} = require('../../accounts');
-
 
 const testAccount = {
   address: accounts[0], // '0x31767228EE17C34a821b0aF50E45C705506E32e4',
@@ -117,7 +118,8 @@ describe('Deals', () => {
       })
       .then(() => createDeal(dealStart, dealEnd))
       .then(() => {
-        return Eth.increaseTimeTestRPC(delay * 2);
+        console.log('EVm: ', Evm);
+        return Evm.increaseTimeTestRPC(delay * 2);
       })
     });
 
@@ -207,7 +209,7 @@ describe('Deals', () => {
         return createDeal(dealStart, dealEnd)
       })
       .then(() => {
-        return Eth.increaseTimeTestRPC(delay * 2);
+        return Evm.increaseTimeTestRPC(delay * 2);
       })
       .then(result => {
         return deal.methods.authorize(investor).send(options.txParams)
@@ -220,7 +222,7 @@ describe('Deals', () => {
       })
       .then(result => {
         assert.equal(result/rate, web3.utils.toWei(etherInvested, 'ether'));
-        return Eth.increaseTimeTestRPC(delay * 30);
+        return Evm.increaseTimeTestRPC(delay * 30);
       })
       .then(result => {
         failedProperly = true;

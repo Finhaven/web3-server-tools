@@ -1,4 +1,6 @@
 const Eth = require('../../../src/lib/eth');
+const Evm = require('../../utils/evm');
+
 const Wallet = require('../../../src/models/wallet'),
   Web3 = require('web3'),
   web3 = new Web3(),
@@ -22,7 +24,7 @@ describe('Eth', () => {
       return Eth.getCurrentTimestamp()
       .then((result) => {
         initialTime = result;
-        return Eth.increaseTimeTestRPC(timeDiff)
+        return Evm.increaseTimeTestRPC(timeDiff)
       })
       .then(result => {
         return Eth.getCurrentTimestamp()
