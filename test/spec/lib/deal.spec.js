@@ -1,10 +1,11 @@
 const Eth = require('../../../src/lib/eth');
+const Evm = require('../../utils/evm');
+
 const Wallet = require('../../../src/models/wallet'),
   Web3 = require('web3'),
   web3 = new Web3(),
   BigNumber = require('bignumber.js'),
   {accounts, keys} = require('../../accounts');
-
 
 const testAccount = {
   address: accounts[0], // '0x31767228EE17C34a821b0aF50E45C705506E32e4',
@@ -17,7 +18,7 @@ const investorAccount = {
 };
 
 const etherInvested = '1';
-const delay = 1 * 1000;
+const delay = 100; // seconds
 const oneMonth = 1000 * 60 * 60 * 24 * 30; // 30 days anyway
 const rate = new BigNumber(1000);
 
@@ -104,21 +105,21 @@ describe('Deals', () => {
 
   describe('authorization', () => {
     before(() => {
-      const now = Date.now();
-      const dealStart = Number(((now + delay) / 1000).toFixed());
-      const dealEnd = Number(((now + delay + oneMonth) / 1000).toFixed());
-      console.log('Deal start', dealStart)
-      console.log('Deal end', dealEnd)
-      return Eth.deployContract('DealFactory', options)
+      let dealStart, dealEnd
+      return Eth.getCurrentTimestamp()
+      .then((ethCurrentTimestamp) => {
+        dealStart = ethCurrentTimestamp + delay;
+        dealEnd = ethCurrentTimestamp + delay * 20;
+        return Eth.deployContract('DealFactory', options)
+      })
       .then(result => {
           dealFactory = result;
           return result;
       })
       .then(() => createDeal(dealStart, dealEnd))
       .then(() => {
-        // return Eth.increaseTime(delay * 2 / 1000);
-        // return new Promise(() => Eth.increaseTime(delay * 2 / 1000));
-        return new Promise((resolve) => setTimeout(resolve, delay * 2))
+        console.log('EVm: ', Evm);
+        return Evm.increaseTimeTestRPC(delay * 2);
       })
     });
 
@@ -189,30 +190,31 @@ describe('Deals', () => {
   });
 
   it('should not buy tokens after deal ends', () => {
-    const now = Date.now();
-    const dealStart = Number(((now + delay) / 1000).toFixed());
+    let initialTime;
+    let dealStart;
     let failedProperly = false;
     const investor = investorAccount.address;
     const etherInvested = '1';
     return Wallet
       .findOrCreate(investorAccount.address, investorAccount)
       .then(() => {
+        return Eth.getCurrentTimestamp()
+      })
+      .then((ethCurrentTimestamp) => {
+        initialTime = ethCurrentTimestamp;
+        const dealStart = initialTime + delay;
+        const dealEnd = initialTime + delay * 20;
         console.log('Deal start: ', dealStart)
-        console.log('Deal end: ', dealStart + delay * 4 / 1000)
-        console.log('Before creating deal: ', Date.now() / 1000)
-        return createDeal(dealStart, dealStart + delay * 4 / 1000)
+        console.log('Deal end: ', dealEnd)
+        return createDeal(dealStart, dealEnd)
       })
       .then(() => {
-        console.log('Pause 1: ', Date.now())
-        // return new Promise(() => Eth.increaseTime(delay * 3 / 1000));
-        return new Promise((resolve) => setTimeout(resolve, delay * 3))
+        return Evm.increaseTimeTestRPC(delay * 2);
       })
       .then(result => {
-        console.log('Pause 2: ', Date.now())
         return deal.methods.authorize(investor).send(options.txParams)
       })
       .then(result => {
-        console.log('Buy 1: ', Date.now())
         return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
       })
       .then(() => {
@@ -220,10 +222,9 @@ describe('Deals', () => {
       })
       .then(result => {
         assert.equal(result/rate, web3.utils.toWei(etherInvested, 'ether'));
-        return new Promise((resolve) => setTimeout(resolve, delay * 4))
+        return Evm.increaseTimeTestRPC(delay * 30);
       })
       .then(result => {
-        console.log('Buy 2: ', Date.now())
         failedProperly = true;
         return deal.methods.buyTokens(investor).send(buyTokensOptions.txParams)
       })

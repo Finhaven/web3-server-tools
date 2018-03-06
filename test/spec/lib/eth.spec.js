@@ -1,4 +1,6 @@
 const Eth = require('../../../src/lib/eth');
+const Evm = require('../../utils/evm');
+
 const Wallet = require('../../../src/models/wallet'),
   Web3 = require('web3'),
   web3 = new Web3(),
@@ -14,6 +16,25 @@ const testAccount = {
 
 describe('Eth', () => {
   before(() => Wallet.deleteById(testAccount.address));
+
+  describe('utils', () => {
+    it('should increase EVM time ', () => {
+      let initialTime;
+      const timeDiff = 100;
+      return Eth.getCurrentTimestamp()
+      .then((result) => {
+        initialTime = result;
+        return Evm.increaseTimeTestRPC(timeDiff)
+      })
+      .then(result => {
+        return Eth.getCurrentTimestamp()
+      })
+      .then((result) => {
+        assert(result == initialTime + timeDiff);
+      })
+    })
+  });
+
   describe('account', () => {
     it('should generate address ', () => {
       return Eth.generateAccount()

@@ -165,16 +165,6 @@ const Eth = {
       })
   },
 
-  //FIXME seems not working with web3.js 1.0 for now
-  increaseTimeTestRPC: function(seconds) {
-    return web3.currentProvider.send({
-      jsonrpc: "2.0",
-      method: "evm_increaseTime",
-      params: [seconds],
-      id: 0
-    });
-  },
-
   getCurrentTimestamp: function() {
     return web3.eth.getBlockNumber()
       .then((blockNumber) => web3.eth.getBlock(blockNumber))
