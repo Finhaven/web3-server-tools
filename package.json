@@ -32,7 +32,7 @@
     "url": "git+https://github.com/FrontierFoundry/web3-server-tools.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/FrontierFoundry/web3-server-tools/issues"
   },
