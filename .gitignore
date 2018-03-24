@@ -1,6 +1,6 @@
 .idea/
 yarn.lock
-# truffle/build/
+truffle/build/
 
 
 # Created by https://www.gitignore.io/api/node,linux,macos,windows
