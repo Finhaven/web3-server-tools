@@ -1,6 +1,12 @@
 {
   "env": {
-    "node": true,
-    "es6": true
+    "mocha": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb-base"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 8
   }
 }

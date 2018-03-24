@@ -1,9 +1,9 @@
 const Web3 = require('web3');
 const Tx = require('ethereumjs-tx');
-const _ = require('lodash');
 const request = require('request');
 const fs = require('fs');
-const logger = console; //require('./logger');
+
+const logger = console; // require('./logger');
 const Wallet = require('../models/wallet');
 const solc = require('solc');
 
@@ -118,7 +118,7 @@ const Eth = {
       input[`${name}.sol`] = source;
       const compiled = solc.compile({ sources: input }, 1, findImports);
 
-      logger.debug('compiled output', _.keys(compiled.contracts));
+      logger.debug('compiled output', Object.keys(compiled.contracts));
 
       const compiledName = `${name}.sol:${name}`;
       if (!compiled.contracts[compiledName]) {
@@ -133,7 +133,7 @@ const Eth = {
       contractData = {
         contract_name: name,
         abi: JSON.parse(abi),
-        binary: bytecode
+        binary: bytecode,
       };
 
       fs.writeFileSync(compiledPath, JSON.stringify(contractData, null, 2), 'utf8');
@@ -143,8 +143,8 @@ const Eth = {
   },
   loadContract(name, address) {
     // eslint-disable-next-line
-    const contractData = require(`../../truffle/build/contracts/${name}.json`);
-    const contract = new web3.eth.Contract(contractData.abi, address, {data: contractData.bytecode});
+    const { abi, bytecode } = require(`../../truffle/build/contracts/${name}.json`);
+    const contract = new web3.eth.Contract(abi, address, { data: bytecode });
     contract.setProvider(provider);
     return contract;
   },
@@ -153,25 +153,23 @@ const Eth = {
     const txParams = {
       from: options.txParams.from,
       gas: options.txParams.gas,
-      gasPrice: options.txParams.gasPrice
+      gasPrice: options.txParams.gasPrice,
     };
 
-    return contractBody.deploy({arguments: options.params}).send(txParams)
-      .then(contractInstance => {
+    return contractBody.deploy({ arguments: options.params }).send(txParams)
+      .then((contractInstance) => {
         // Workaround, see https://github.com/FrontierFoundry/web3-server-tools/issues/3
         contractInstance.setProvider(provider);
         return contractInstance;
-      }).catch(e => {
+      }).catch((e) => {
         console.log('error while deploying contract: ', e);
       });
   },
 
-  getCurrentTimestamp: function() {
+  getCurrentTimestamp() {
     return web3.eth.getBlockNumber()
-      .then((blockNumber) => web3.eth.getBlock(blockNumber))
-      .then((blockInfo) => {
-        return blockInfo.timestamp;
-      })
+      .then(blockNumber => web3.eth.getBlock(blockNumber))
+      .then(blockInfo => blockInfo.timestamp);
   },
 
   findTransactions(address) {
@@ -193,12 +191,12 @@ const Eth = {
         Promise.all(wallets.map(w => w.address && Eth.getBalance(w.address).then(b => [w, b]))))
       .then((walletBalances) => {
         // logger.debug(walletBalances);
-        const nonZero = _.filter(walletBalances, wb => wb && wb.length === 2 && wb[1] > 0);
+        const nonZero = walletBalances.filter(wb => wb && wb.length === 2 && wb[1] > 0);
         return nonZero;
       });
   },
 
-  prepareTx: function (options) {
+  prepareTx(options) {
     const {
       amount,
       data,
@@ -217,7 +215,7 @@ const Eth = {
           from,
           to,
           value: 0,
-          nonce: transactionCount,  // the nonce is the number of transactions on this account
+          nonce: transactionCount, // the nonce is the number of transactions on this account
           // data: ''
         };
 
@@ -236,7 +234,7 @@ const Eth = {
       });
   },
 
-  submitTx: function (preparedTx, from) {
+  submitTx(preparedTx, from) {
     return Wallet
       .find(from)
       .then((w) => {
@@ -264,11 +262,9 @@ const Eth = {
   //   from,
   //   to,
   // };
-  transfer: function (options) {
+  transfer(options) {
     return Eth.prepareTx(options)
-      .then((preparedTx) => {
-        return Eth.submitTx(preparedTx, options.from);
-    });
+      .then(preparedTx => Eth.submitTx(preparedTx, options.from));
   },
 };
 
@@ -280,5 +276,5 @@ try {
     .catch(e => logger.warn(`failed to connect${e}`));
 } catch (e) {
   logger.error('isConnected failed');
-  logger.warn('Ethereum node must be running for this module to work')
+  logger.warn('Ethereum node must be running for this module to work');
 }
