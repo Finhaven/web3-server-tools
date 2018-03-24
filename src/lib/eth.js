@@ -141,15 +141,15 @@ const Eth = {
 
     return contractData;
   },
-  loadContract(name, address, path = '../../truffle/build/contracts') {
+  loadContract(name, address) {
     // eslint-disable-next-line
-    const contractData = require(`${path}/${name}.json`);
+    const contractData = require(`../../truffle/build/contracts/${name}.json`);
     const contract = new web3.eth.Contract(contractData.abi, address, {data: contractData.bytecode});
     contract.setProvider(provider);
     return contract;
   },
-  deployContract(name, options, path) {
-    const contractBody = Eth.loadContract(name, undefined, path);
+  deployContract(name, options) {
+    const contractBody = Eth.loadContract(name);
     const txParams = {
       from: options.txParams.from,
       gas: options.txParams.gas,

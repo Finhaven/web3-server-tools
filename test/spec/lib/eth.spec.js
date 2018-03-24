@@ -1,10 +1,10 @@
-const Eth = require('../../../src/lib/eth');
-const Evm = require('../../utils/evm');
-
-const Wallet = require('../../../src/models/wallet');
+const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
 const web3 = new Web3();
-const BigNumber = require('bignumber.js');
+
+const Eth = require('../../../src/lib/eth');
+const Evm = require('../../utils/evm');
+const Wallet = require('../../../src/models/wallet');
 const { accounts, keys } = require('../../accounts');
 
 const testAccount = {
@@ -19,17 +19,18 @@ describe('Eth', () => {
     it('should increase EVM time ', () => {
       let initialTime;
       const timeDiff = 100;
+
       return Eth.getCurrentTimestamp()
-      .then((result) => {
-        initialTime = result;
-        return Evm.increaseTimeTestRPC(timeDiff);
-      })
-      .then(result => {
-        return Eth.getCurrentTimestamp();
-      })
-      .then((result) => {
-        assert(result == initialTime + timeDiff);
-      });
+        .then((firstTime) => {
+          initialTime = firstTime;
+          return Evm.increaseTimeTestRPC(timeDiff);
+        })
+        .then(() => {
+          return Eth.getCurrentTimestamp();
+        })
+        .then((finalTime) => {
+          assert(finalTime > initialTime);
+        });
     });
   });
 
@@ -104,8 +105,7 @@ describe('Eth', () => {
     };
 
     it('should deploy contract', () => {
-      const path = '../../../node_modules/zeppelin-solidity/contracts';
-      return Eth.deployContract('Bounty', options, path)
+      return Eth.deployContract('SimpleContract', options)
         .then(resultContract => {
           contract = resultContract;
           console.log('contract deployed at ', resultContract.options.address);
