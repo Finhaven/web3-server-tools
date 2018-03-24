@@ -133,7 +133,7 @@ const Eth = {
       contractData = {
         contract_name: name,
         abi: JSON.parse(abi),
-        binary: bytecode,
+        binary: bytecode
       };
 
       fs.writeFileSync(compiledPath, JSON.stringify(contractData, null, 2), 'utf8');
@@ -141,20 +141,21 @@ const Eth = {
 
     return contractData;
   },
-  loadContract(name, address) {
+  loadContract(name, address, path = '../../truffle/build/contracts') {
     // eslint-disable-next-line
-    const contractData = require(`../../truffle/build/contracts/${name}.json`);
+    const contractData = require(`${path}/${name}.json`);
     const contract = new web3.eth.Contract(contractData.abi, address, {data: contractData.bytecode});
     contract.setProvider(provider);
     return contract;
   },
-  deployContract(name, options) {
-    const contractBody = Eth.loadContract(name);
+  deployContract(name, options, path) {
+    const contractBody = Eth.loadContract(name, undefined, path);
     const txParams = {
       from: options.txParams.from,
       gas: options.txParams.gas,
       gasPrice: options.txParams.gasPrice
-    }
+    };
+
     return contractBody.deploy({arguments: options.params}).send(txParams)
       .then(contractInstance => {
         // Workaround, see https://github.com/FrontierFoundry/web3-server-tools/issues/3
@@ -162,7 +163,7 @@ const Eth = {
         return contractInstance;
       }).catch(e => {
         console.log('error while deploying contract: ', e);
-      })
+      });
   },
 
   getCurrentTimestamp: function() {
