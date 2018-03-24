@@ -13,7 +13,6 @@
     "test": "npm run truffle:compile && mocha",
     "test:lint": "eslint -c .eslintrc . --color=true --quiet",
     "test:lint:fix": "eslint -c .eslintrc . --color=true --quiet --fix",
-    "test:truffle": "cd ./truffle && truffle test",
     "truffle:compile": "cd ./truffle && truffle compile",
     "watch": "npm-watch"
   },
