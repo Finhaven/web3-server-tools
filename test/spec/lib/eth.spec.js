@@ -1,4 +1,4 @@
-const assert = require('assert');
+const { assert } = require('chai');
 const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
 

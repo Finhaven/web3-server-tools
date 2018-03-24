@@ -1,7 +1,7 @@
-const Web3 = require('web3');
-const Tx = require('ethereumjs-tx');
-const request = require('request');
 const fs = require('fs');
+const request = require('request');
+const Tx = require('ethereumjs-tx');
+const Web3 = require('web3');
 
 const logger = console; // require('./logger');
 const Wallet = require('../models/wallet');
