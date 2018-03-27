@@ -1,7 +1,7 @@
 .idea/
 yarn.lock
 truffle/build/
-
+.python-version
 
 # Created by https://www.gitignore.io/api/node,linux,macos,windows
 
