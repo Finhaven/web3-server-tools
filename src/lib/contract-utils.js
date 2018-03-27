@@ -28,7 +28,7 @@ module.exports = {
     const startTime = timeNow();
     const endTime = startTime + (60 * 60 * 24 * 30); // end time, 30 days
 
-    // new BigNumber(1000); // rate of ether to LP Token in wei
+    // rate of ether to LP Token in wei
     const rate = web3.utils.toWei('.0001', 'ether');
 
     // the address that will hold the fund. Recommended to use a multisig one for security.

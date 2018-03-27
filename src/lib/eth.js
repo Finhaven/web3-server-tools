@@ -3,7 +3,7 @@ const request = require('request');
 const Tx = require('ethereumjs-tx');
 const Web3 = require('web3');
 
-const logger = console; // require('./logger');
+const logger = console;
 const Wallet = require('../models/wallet');
 const solc = require('solc');
 
@@ -276,5 +276,5 @@ try {
     .catch(e => logger.warn(`failed to connect${e}`));
 } catch (e) {
   logger.error('isConnected failed');
-  logger.warn('Ethereum node must be running for this module to work');
+  logger.warn('Ethereum node must be running for this module to work. Try `npm run start:testrpc`');
 }
