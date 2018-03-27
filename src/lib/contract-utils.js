@@ -1,6 +1,7 @@
-const Web3 = require('web3'),
-  web3 = new Web3();
-  // _ = require('lodash');
+const assert = require('assert');
+const Web3 = require('web3');
+
+const web3 = new Web3();
 
 function timeNow() {
   return Date.now() / 1000;
@@ -9,7 +10,7 @@ function timeNow() {
 module.exports = {
   getParamFromTxEvent(transaction, paramName, contractFactory, eventName) {
     assert.isObject(transaction);
-    let logs = transaction.logs;
+    let { logs } = transaction;
     if (eventName != null) {
       logs = logs.filter(l => l.event === eventName);
     }
@@ -23,13 +24,21 @@ module.exports = {
     return param;
   },
   getDealParameters(account) {
-    const startTime = timeNow(); // web3.eth.getBlock('latest').timestamp + 1; //+ (60*60*24); //start in a day from latest block
+    // web3.eth.getBlock('latest').timestamp + 1; //+ (60*60*24); //start in a day from latest block
+    const startTime = timeNow();
     const endTime = startTime + (60 * 60 * 24 * 30); // end time, 30 days
-    const rate = web3.utils.toWei('.0001', 'ether'); // new BigNumber(1000); // rate of ether to LP Token in wei
-    const wallet = account; // the address that will hold the fund. Recommended to use a multisig one for security.
+
+    // rate of ether to LP Token in wei
+    const rate = web3.utils.toWei('.0001', 'ether');
+
+    // the address that will hold the fund. Recommended to use a multisig one for security.
+    const wallet = account;
+
     return {
-      startTime, endTime, rate, wallet,
+      startTime,
+      endTime,
+      rate,
+      wallet,
     };
   },
 };
-

@@ -4,14 +4,14 @@ pragma solidity ^0.4.15;
 
 contract SimpleContract {
 
-    int public value = 0;
+  int public value = 0;
 
-    function add(int _value) public {
-        value = value + _value;
-    }
+  function add(int _value) public {
+    value = value + _value;
+  }
 
-    function SimpleContract(int initialValue) {
-        value = initialValue;
-    }
+  function SimpleContract(int initialValue) {
+    value = initialValue;
+  }
 
 }
